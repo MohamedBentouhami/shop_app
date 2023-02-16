@@ -6,10 +6,6 @@ import '../providers/products.dart';
 // ignore: use_key_in_widget_constructors
 class ProductDetailScreen extends StatelessWidget {
   static const routeName = '/product-detail';
-  /* final String title;
-  final double price;
-
-  const ProductDetailScreen(this.title, this.price); */
 
   @override
   Widget build(BuildContext context) {
