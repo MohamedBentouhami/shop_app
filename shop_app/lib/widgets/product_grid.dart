@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../widgets/product_item.dart';
 import '../providers/products.dart';
 
+// ignore: must_be_immutable
 class ProductsGrid extends StatelessWidget {
   bool showFavs;
 
+  // ignore: use_key_in_widget_constructors
   ProductsGrid(this.showFavs);
 
   @override

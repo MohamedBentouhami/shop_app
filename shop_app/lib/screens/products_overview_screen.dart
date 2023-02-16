@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../widgets/app_drawer.dart';
 
 import '../providers/cart.dart';
 import '../screens/cart_screen.dart';
@@ -10,13 +11,13 @@ import '../widgets/badge.dart';
 
 enum FilterOptions { Favorites, All }
 
+// ignore: use_key_in_widget_constructors
 class ProductsOverviewScreen extends StatefulWidget {
   @override
   State<ProductsOverviewScreen> createState() => _ProductsOverviewScreenState();
 }
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
-  @override
   var _showOnlyFavorite = false;
 
   @override
@@ -62,6 +63,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       body: ProductsGrid(_showOnlyFavorite),
+      drawer: const AppDrawer(),
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
 
+// ignore: use_key_in_widget_constructors
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

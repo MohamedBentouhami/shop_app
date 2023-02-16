@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/products.dart';
 
+// ignore: use_key_in_widget_constructors
 class ProductDetailScreen extends StatelessWidget {
   static const routeName = '/product-detail';
   /* final String title;
@@ -21,7 +22,7 @@ class ProductDetailScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: 300,
               width: double.infinity,
               child: Image.network(
