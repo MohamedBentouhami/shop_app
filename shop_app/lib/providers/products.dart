@@ -42,7 +42,6 @@ class Products with ChangeNotifier {
   }
 
   List<Product> get favoritesItems {
-    print("Appelée");
     return _items.where((element) => element.isFavorite).toList();
   }
 
