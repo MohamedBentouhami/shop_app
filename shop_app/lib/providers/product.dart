@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class Product with ChangeNotifier {
-  final String id;
+  final String? id;
   final String title;
   final String description;
   final double price;
@@ -17,8 +20,25 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() {
+  Future<void> toggleFavoriteStatus() async {
+    final url = Uri.https(
+        'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products/$id.json');
     isFavorite = !isFavorite;
+    notifyListeners();
+    try {
+      final response = await http.patch(url,
+          body: jsonEncode({'isFavorite': isFavorite.toString()}));
+      if (response.statusCode >= 400) {
+        _setFavValue(!isFavorite);
+      }
+    } catch (error) {
+      _setFavValue(!isFavorite);
+    }
+  }
+
+  void _setFavValue(bool newValue) {
+    isFavorite = newValue;
     notifyListeners();
   }
 }

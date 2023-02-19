@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../models/http_exception.dart';
+
 import './product.dart';
 
 class Products with ChangeNotifier {
-  final List<Product> _items = [
+  List<Product> _items =
+      []; /* = [
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -35,7 +41,10 @@ class Products with ChangeNotifier {
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
-  ];
+  ]; */
+  final _url = Uri.https(
+      'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+      '/products.json');
 
   List<Product> get items {
     return [..._items];
@@ -45,31 +54,107 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.isFavorite).toList();
   }
 
-  void addProduct(Product product) {
-    final newProduct = Product(
-        id: DateTime.now().toString(),
+  Future<void> fetchAndSetProducts() async {
+    final url = Uri.https(
+        'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products.json');
+    try {
+      final response = await http.get(url);
+      final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (extractedData == null) {
+        return;
+      }
+
+      final List<Product> loadedProducts = [];
+      extractedData.forEach((prodId, productData) {
+        loadedProducts.add(Product(
+          id: prodId,
+          title: productData['title'],
+          description: productData['description'],
+          price: double.parse(productData['price']),
+          imageUrl: productData['imageUrl'],
+          isFavorite: toBoolean(productData['isFavorite']),
+        ));
+      });
+      _items = loadedProducts;
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<void> addProduct(Product product) async {
+    try {
+      final response = await http.post(_url,
+          body: jsonEncode(<String, String>{
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price.toString(),
+            'isFavorite': product.isFavorite.toString()
+          }));
+      final newProduct = Product(
+        id: jsonDecode(response.body)['name'],
         title: product.title,
         description: product.description,
         price: product.price,
-        imageUrl: product.imageUrl);
-    _items.add(newProduct);
-    notifyListeners();
+        imageUrl: product.imageUrl,
+      );
+      _items.add(newProduct);
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
   }
 
   Product findById(String idProduct) {
     return items.firstWhere((item) => item.id == idProduct);
   }
 
-  void updateProduct(String idProduct, Product newProduct) {
+  Future<void> updateProduct(String idProduct, Product newProduct) async {
     final productIndex = _items.indexWhere((prod) => prod.id == idProduct);
     if (productIndex >= 0) {
-      _items[productIndex] = newProduct;
-      notifyListeners();
+      var url = Uri.https(
+          'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+          '/products/$idProduct/.json');
+      try {
+        await http.patch(url,
+            body: jsonEncode({
+              'title': newProduct.title,
+              'description': newProduct.description,
+              'imageUrl': newProduct.imageUrl,
+              'price': newProduct.price.toString(),
+              'isFavorite': newProduct.isFavorite.toString()
+            }));
+        _items[productIndex] = newProduct;
+        notifyListeners();
+      } catch (error) {
+        rethrow;
+      }
     }
   }
 
-  void removeProduct(String idProduct) {
-    _items.removeWhere((product) => product.id == idProduct);
+  Future<void> removeProduct(String idProduct) async {
+    final url = Uri.https(
+        'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products/$idProduct.json');
+    final existingProductIndex =
+        _items.indexWhere((product) => product.id == idProduct);
+    Product? existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException('Could not delete product');
+    }
+    existingProduct = null;
+  }
+
+  bool toBoolean(String value) {
+    return value == 'true';
   }
 }

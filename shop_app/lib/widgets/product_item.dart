@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../providers/cart.dart';
-import '../screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/cart.dart';
+import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
 
 // ignore: use_key_in_widget_constructors
@@ -41,7 +41,8 @@ class ProductItem extends StatelessWidget {
             trailing: IconButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                cart.addItem(product.id, product.price, product.title);
+                cart.addItem(
+                    product.id as String, product.price, product.title);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: const Text(
                     'Added item to cart',
@@ -51,7 +52,7 @@ class ProductItem extends StatelessWidget {
                   action: SnackBarAction(
                     label: 'UNDO',
                     onPressed: () {
-                      cart.removeSingleItem(product.id);
+                      cart.removeSingleItem(product.id as String);
                     },
                   ),
                 ));

@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import './cart.dart';
 
 class OrderItem {
@@ -15,21 +19,63 @@ class OrderItem {
 }
 
 class Orders with ChangeNotifier {
-  final List<OrderItem> _orders = [];
+  List<OrderItem> _orders = [];
+  final _url = Uri.https(
+      'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+      '/orders.json');
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double totale) {
-    //insert(0,..) : insert at the begin of the list.
+  Future<void> addOrder(List<CartItem> cartProducts, double totale) async {
+    final timestamp = DateTime.now();
+    final response = await http.post(_url,
+        body: jsonEncode({
+          'amount': totale,
+          'products': cartProducts
+              .map((cp) => {
+                    'id': cp.id,
+                    'title': cp.title,
+                    'quantity': cp.quantity,
+                    'price': cp.price
+                  })
+              .toList(),
+          'dateTime': timestamp.toIso8601String()
+        }));
     _orders.insert(
         0,
         OrderItem(
-            id: DateTime.now().toString(),
+            id: jsonDecode(response.body)['name'],
             amount: totale,
             products: cartProducts,
-            dateTime: DateTime.now()));
+            dateTime: timestamp));
+    notifyListeners();
+  }
+
+  Future<void> fetchAndSetOrders() async {
+    final response = await http.get(_url);
+    final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
+    List<OrderItem> loadedOrders = [];
+    if (extractedData == null) {
+      return;
+    }
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(OrderItem(
+          id: orderId,
+          amount: orderData['amount'],
+          products: (orderData['products'] as List<dynamic>)
+              .map(
+                (item) => CartItem(
+                    id: item['id'],
+                    price: item['price'],
+                    quantity: item['quantity'],
+                    title: item['title']),
+              )
+              .toList(),
+          dateTime: DateTime.parse(orderData['dateTime'])));
+    });
+    _orders = loadedOrders;
     notifyListeners();
   }
 }
