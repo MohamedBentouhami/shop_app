@@ -20,15 +20,19 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
-  final _url = Uri.https(
-      'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
-      '/orders.json');
+  final String authToken;
+
+  Orders(this.authToken, this._orders);
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double totale) async {
+    final _url = Uri.https(
+        'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+        '/orders.json',
+        {'auth': authToken});
     final timestamp = DateTime.now();
     final response = await http.post(_url,
         body: jsonEncode({
@@ -54,7 +58,11 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchAndSetOrders() async {
-    final response = await http.get(_url);
+    final url = Uri.https(
+        'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
+        '/orders.json',
+        {'auth': authToken});
+    final response = await http.get(url);
     final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
     List<OrderItem> loadedOrders = [];
     if (extractedData == null) {

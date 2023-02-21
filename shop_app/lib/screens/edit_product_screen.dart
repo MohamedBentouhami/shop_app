@@ -30,7 +30,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     'imageUrl': ''
   };
 
-  var isInit = true;
+  var _isInit = true;
   var _isLoading = false;
 
   void _updateImageUrl() {
@@ -40,49 +40,41 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   Future<void> _saveForm() async {
-    var isValid = _form.currentState?.validate();
-    if (isValid as bool) {
-      _form.currentState?.save();
-      setState(() {
-        _isLoading = true;
-      });
-      if (_editProduct.id != null) {
-        await Provider.of<Products>(context, listen: false)
-            .updateProduct(_editProduct.id as String, _editProduct);
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-      } else {
-        try {
-          await Provider.of<Products>(context, listen: false)
-              .addProduct(_editProduct);
-        } catch (error) {
-          await showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                    title: const Text('An error ocurred'),
-                    content: const Text('Something went wrong'),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.of(ctx).pop();
-                          },
-                          child: const Text('Okay'))
-                    ],
-                  ));
-        } /* finally {
-          setState(() {
-            _isLoading = false;
-          });
-          Navigator.of(context).pop();
-        } */
-      }
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pop();
+    var isValid = _form.currentState?.validate() as bool;
+    if (!isValid) {
+      return;
     }
+    _form.currentState?.save();
+    setState(() {
+      _isLoading = true;
+    });
+    if (_editProduct.id != null) {
+      await Provider.of<Products>(context, listen: false)
+          .updateProduct(_editProduct.id.toString(), _editProduct);
+    } else {
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editProduct);
+      } catch (error) {
+        await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: const Text('An error ocurred'),
+                  content: const Text('Something went wrong'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                        child: const Text('Okay'))
+                  ],
+                ));
+      }
+    }
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
   }
 
   @override
@@ -93,8 +85,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void didChangeDependencies() {
-    if (isInit) {
-      isInit = false;
+    if (_isInit) {
       final productId = ModalRoute.of(context)?.settings.arguments;
       if (productId != null) {
         _editProduct = Provider.of<Products>(context, listen: false)
@@ -108,6 +99,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         _imageUrlController.text = _editProduct.imageUrl;
       }
     }
+    _isInit = false;
     super.didChangeDependencies();
   }
 
@@ -184,7 +176,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 id: _editProduct.id,
                                 title: _editProduct.title,
                                 description: _editProduct.description,
-                                price: double.parse(value as String),
+                                price: double.parse(value.toString()),
                                 imageUrl: _editProduct.imageUrl,
                                 isFavorite: _editProduct.isFavorite);
                           }),
