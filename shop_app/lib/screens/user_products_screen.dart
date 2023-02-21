@@ -5,7 +5,7 @@ import '../widgets/app_drawer.dart';
 import '../widgets/user_product_item.dart';
 
 import '../providers/products.dart';
-import 'edit_product_screen.dart';
+import './edit_product_screen.dart';
 
 // ignore: use_key_in_widget_constructors
 class UserProductsScreen extends StatelessWidget {

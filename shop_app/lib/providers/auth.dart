@@ -101,8 +101,6 @@ class Auth with ChangeNotifier {
     final expiryDate =
         DateTime.parse(extractedUserData['expiryDate'] as String);
     if (expiryDate.isBefore(DateTime.now())) {
-      print('second false');
-
       return false;
     }
     _token = extractedUserData['token'] as String;

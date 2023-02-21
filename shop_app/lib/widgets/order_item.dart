@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../providers/orders.dart' as ord;
-import 'package:intl/intl.dart';
 
 import 'dart:math';
 
@@ -19,27 +19,34 @@ class _OrderItemState extends State<OrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          ListTile(
-            title: Text('${widget.order.amount}€'),
-            subtitle: Text(
-              DateFormat('dd/MM/yyyy hh:mm').format(widget.order.dateTime),
+    return AnimatedContainer(
+      height:
+          _expanded ? min(widget.order.products.length * 20.0 + 150, 200) : 95,
+      duration: const Duration(milliseconds: 300),
+      child: Card(
+        margin: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            ListTile(
+              title: Text('${widget.order.amount}€'),
+              subtitle: Text(
+                DateFormat('dd/MM/yyyy hh:mm').format(widget.order.dateTime),
+              ),
+              trailing: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _expanded = !_expanded;
+                    });
+                  },
+                  icon:
+                      Icon(_expanded ? Icons.expand_less : Icons.expand_more)),
             ),
-            trailing: IconButton(
-                onPressed: () {
-                  setState(() {
-                    _expanded = !_expanded;
-                  });
-                },
-                icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more)),
-          ),
-          if (_expanded)
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 15),
-              height: min(widget.order.products.length * 20.0 + 50, 100),
+              height: _expanded
+                  ? min(widget.order.products.length * 20.0 + 50, 100)
+                  : 0,
               child: ListView(
                 children: widget.order.products
                     .map((prod) => Row(
@@ -60,7 +67,8 @@ class _OrderItemState extends State<OrderItem> {
                     .toList(),
               ),
             )
-        ],
+          ],
+        ),
       ),
     );
   }

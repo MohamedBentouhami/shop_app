@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/product.dart';
 import '../providers/products.dart';
 
+// ignore: use_key_in_widget_constructors
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product';
 
