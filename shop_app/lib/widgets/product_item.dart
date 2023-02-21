@@ -29,8 +29,8 @@ class ProductItem extends StatelessWidget {
             leading: Consumer<Product>(
                 builder: (ctx, product, child) => IconButton(
                       onPressed: () {
-                        product.toggleFavoriteStatus(
-                            authData.token as String, authData.userId);
+                        product.toggleFavoriteStatus(authData.token as String,
+                            authData.userId as String);
                       },
                       icon: Icon(product.isFavorite
                           ? Icons.favorite_border

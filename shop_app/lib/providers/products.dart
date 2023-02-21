@@ -73,9 +73,6 @@ class Products with ChangeNotifier {
 
       final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
 
-      if (extractedData == null) {
-        return;
-      }
       url = Uri.https(
           'flutter-update-fdbf8-default-rtdb.europe-west1.firebasedatabase.app',
           '/userFavorites/$userId.json',
